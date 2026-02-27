@@ -22,7 +22,13 @@
           devShells.default = pkgs.mkShell {
             buildInputs = with pkgs; [
               watchexec
-              python3
+              python314
+              python314Packages.fastapi
+              python314Packages.pypdf2
+              python314Packages.textual
+              python314Packages.textual-dev
+              docker
+              docker-compose
             ];
           };
         };
