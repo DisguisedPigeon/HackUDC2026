@@ -111,6 +111,64 @@ function ExtractView({ onDataExtracted }: ExtractViewProps) {
     }
   }
 
+  const handleExtractAndStore = async () => {
+    setIsLoading(true)
+    setError('')
+    setResult(null)
+
+    try {
+      // First, extract metadata
+      const extractResponse = await fetch('http://localhost:5004/extract', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!extractResponse.ok) {
+        throw new Error(`Extract failed: ${extractResponse.statusText}`)
+      }
+
+      const extractData = await extractResponse.json()
+      
+      if (extractData.status !== 'success') {
+        throw new Error(extractData.detail || 'Unknown error during extraction')
+      }
+
+      setResult(extractData.data)
+      
+      // Pass the extracted data to parent component
+      if (onDataExtracted) {
+        onDataExtracted(extractData.data)
+      }
+
+      // Then, store to database
+      const storeResponse = await fetch('http://localhost:5004/store', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(extractData.data),
+      })
+
+      if (!storeResponse.ok) {
+        throw new Error(`Store failed: ${storeResponse.statusText}`)
+      }
+
+      const storeResult = await storeResponse.json()
+      
+      if (storeResult.status === 'success') {
+        alert(`Successfully extracted and stored ${extractData.data.length} documents!`)
+      } else {
+        throw new Error(storeResult.detail || 'Unknown error during storage')
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to extract and store metadata')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <div>
       <h2 style={{ marginBottom: '1.5rem' }}>Extract Metadata from Dataset</h2>
@@ -147,15 +205,25 @@ function ExtractView({ onDataExtracted }: ExtractViewProps) {
         )}
       </div>
 
-      {/* Extract Button */}
-      <button 
-        className="btn btn-primary" 
-        onClick={handleExtract}
-        disabled={isLoading}
-        style={{ marginBottom: '2rem' }}
-      >
-        {isLoading ? 'Extracting...' : 'Extract Metadata from Dataset'}
-      </button>
+      {/* Extract Buttons */}
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+        <button 
+          className="btn btn-primary" 
+          onClick={handleExtract}
+          disabled={isLoading}
+        >
+          {isLoading ? 'Extracting...' : 'Extract Metadata'}
+        </button>
+        
+        <button 
+          className="btn btn-success" 
+          onClick={handleExtractAndStore}
+          disabled={isLoading}
+          style={{ backgroundColor: '#28a745', color: 'white' }}
+        >
+          {isLoading ? 'Processing...' : 'Extract & Store'}
+        </button>
+      </div>
 
       {error && <div className="error">{error}</div>}
 

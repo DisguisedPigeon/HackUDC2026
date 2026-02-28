@@ -1,24 +1,11 @@
 import { useState } from 'react'
 import ExtractView from './components/ExtractView'
-import StoreView from './components/StoreView'
 import QueryView from './components/QueryView'
 
-type TabType = 'extract' | 'store' | 'query'
-
-interface FileMetadata {
-  name: string
-  contents: string[]
-  creation_date: string
-  extra: string
-}
+type TabType = 'extract' | 'query'
 
 function App() {
   const [activeTab, setActiveTab] = useState<TabType>('extract')
-  const [extractedData, setExtractedData] = useState<FileMetadata[]>([])
-
-  const handleDataExtracted = (data: FileMetadata[]) => {
-    setExtractedData(data)
-  }
 
   return (
     <div className="container">
@@ -33,13 +20,7 @@ function App() {
             className={`tab ${activeTab === 'extract' ? 'active' : ''}`}
             onClick={() => setActiveTab('extract')}
           >
-            📥 Extract Metadata
-          </button>
-          <button
-            className={`tab ${activeTab === 'store' ? 'active' : ''}`}
-            onClick={() => setActiveTab('store')}
-          >
-            💾 Store to Database
+            📥 Extract & Store
           </button>
           <button
             className={`tab ${activeTab === 'query' ? 'active' : ''}`}
@@ -50,8 +31,7 @@ function App() {
         </div>
 
         <div className="tab-content">
-          {activeTab === 'extract' && <ExtractView onDataExtracted={handleDataExtracted} />}
-          {activeTab === 'store' && <StoreView extractedData={extractedData} />}
+          {activeTab === 'extract' && <ExtractView />}
           {activeTab === 'query' && <QueryView />}
         </div>
       </div>

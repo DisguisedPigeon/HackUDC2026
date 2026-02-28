@@ -16,18 +16,21 @@ function QueryView() {
   const [results, setResults] = useState<QueryResult[]>([])
   const [error, setError] = useState('')
 
-  const handleQuery = async () => {
+  const handleQuery = async (showAll: boolean = false) => {
     setIsLoading(true)
     setError('')
     setResults([])
 
     try {
-      // Build query parameters
+      // Build query parameters matching ui.py format
       const params = new URLSearchParams()
-      if (startDate) params.append('start_date', startDate)
-      if (endDate) params.append('end_date', endDate)
-      if (usersMentioned) params.append('users_mentioned', usersMentioned)
-      if (reunionResult) params.append('reunion_result', reunionResult)
+      
+      if (!showAll) {
+        if (startDate) params.append('startDate', startDate)
+        if (endDate) params.append('endDate', endDate)
+        if (usersMentioned) params.append('usersMentioned', usersMentioned)
+        if (reunionResult) params.append('reunionResult', reunionResult)
+      }
 
       const response = await fetch(`http://localhost:5004/query?${params.toString()}`, {
         method: 'GET',
@@ -105,13 +108,23 @@ function QueryView() {
         </div>
       </div>
 
-      <button 
-        className="btn btn-primary" 
-        onClick={handleQuery}
-        disabled={isLoading}
-      >
-        {isLoading ? 'Querying...' : 'Run Query'}
-      </button>
+      <div style={{ display: 'flex', gap: '1rem' }}>
+        <button 
+          className="btn btn-primary" 
+          onClick={() => handleQuery(false)}
+          disabled={isLoading}
+        >
+          {isLoading ? 'Querying...' : 'Run Query'}
+        </button>
+        
+        <button 
+          className="btn btn-secondary" 
+          onClick={() => handleQuery(true)}
+          disabled={isLoading}
+        >
+          {isLoading ? 'Loading...' : 'View All Stored Data'}
+        </button>
+      </div>
 
       {error && <div className="error">{error}</div>}
 
@@ -138,7 +151,7 @@ function QueryView() {
 
       {results.length === 0 && !isLoading && !error && (
         <div style={{ marginTop: '1.5rem', color: '#666' }}>
-          No results found. Try different filters or run a query without filters.
+          No results found. Try different filters or click "View All Stored Data" to see all documents.
         </div>
       )}
     </div>
