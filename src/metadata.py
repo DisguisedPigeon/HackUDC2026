@@ -4,25 +4,41 @@ import glob
 import os
 import logic
 import datetime 
+from pathlib import PurePosixPath
 
-path = os.getcwd()[:-4]
-for doc in glob.glob(f"{path}\dataset\*.pdf"):
-    reader = pdf.PdfReader(doc)
+def data_from_pdf(pdf_data: str):
+    reader = pdf.PdfReader(pdf_data)
     meta = reader.metadata
 
     contents = list()
-    try:
-        for page in doc.pages:
+    
+    for page in doc.pages:
+        try:
             contents.append(page.extract_text())
-    except:
-        continue
+        except:
+            contents.append("NaT")
 
     data = {
         "author": f"{meta.author}",
         "creator": f"{meta.creator}",
         "producer": f"{meta.producer}"
     }
-
     reader_string = json.dumps(data, indent=4)
     
-    logic.dataclass(name= meta.title, contents= contents, creation_time = datetime.fromtimestamp(doc), extra= reader_string)
+    logic.dataclass(name= meta.title, contents= contents, creation_time = datetime.fromtimestamp(pdf_data), extra= reader_string)
+
+def data_from_txt(txt_data: str):
+    with open(txt_data, "r") as t:
+        contents = []
+        for line in t[1:]:
+            contents.append[line]
+        logic.dataclass(name= t[0], contents = contents, creation_time = datetime.fromtimestamp(txt_data))
+
+path = os.getcwd()[:-4]
+for doc in glob.glob(f"{path}\dataset\*.*"):
+    if PurePosixPath(*doc).suffix == ".pdf":
+        data_from_pdf
+    elif PurePosixPath(*doc).suffix == ".csv":
+        logic.data_from_csv(doc)
+    elif PurePosixPath(*doc).suffix == ".txt":
+        data_from_txt(doc)
