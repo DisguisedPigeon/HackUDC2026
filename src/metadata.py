@@ -13,10 +13,10 @@ def data_from_pdf(pdf_data: str):
     contents = list()
     
     for page in doc.pages:
-        try:
-            contents.append(page.extract_text())
-        except:
+        if page.extract_text() == '':
             contents.append("NaT")
+        else:
+            contents.append(page.extract_text())
 
     data = {
         "author": f"{meta.author}",
@@ -25,14 +25,14 @@ def data_from_pdf(pdf_data: str):
     }
     reader_string = json.dumps(data, indent=4)
     
-    logic.dataclass(name= meta.title, contents= contents, creation_time = datetime.fromtimestamp(pdf_data), extra= reader_string)
+    logic.FileData(name= meta.title, contents= contents, creation_time = datetime.fromtimestamp(pdf_data), extra= reader_string)
 
 def data_from_txt(txt_data: str):
     with open(txt_data, "r") as t:
         contents = []
         for line in t[1:]:
             contents.append[line]
-        logic.dataclass(name= t[0], contents = contents, creation_time = datetime.fromtimestamp(txt_data))
+        logic.FileData(name= t[0], contents = contents, creation_time = datetime.fromtimestamp(txt_data))
 
 path = os.getcwd()[:-4]
 for doc in glob.glob(f"{path}\dataset\*.*"):
