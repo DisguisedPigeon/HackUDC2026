@@ -14,6 +14,9 @@ services:
     networks:
       - ai-sdk-net
     restart: unless-stopped
+    depends_on:
+      postgres-db:
+        condition: service_healthy
 
   ai-sdk:
     image: harbor.open.denodo.com/denodo-express/ai-sdk:latest
@@ -32,7 +35,32 @@ services:
       - ai-sdk-net
     restart: on-failure
 
+  # --- LA MAGIA ESTÁ AQUÍ ---
+  postgres-db:
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U denodo_user -d my_database"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    image: postgres:latest
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: denodo_user
+      POSTGRES_PASSWORD: denodo_password
+      POSTGRES_DB: my_database
+    ports:
+      - "5432:5432" # Exponemos al host por si quieres entrar desde DBeaver/pgAdmin
+    networks:
+      ai-sdk-net:
+        ipv4_address: 172.18.0.1
+    volumes:
+      - postgres_data:/var/lib/postgresql/18/main
+    restart: unless-stopped
+
 networks:
   ai-sdk-net:
     name: ai-sdk-docker
     driver: bridge
+
+volumes:
+  postgres_data:

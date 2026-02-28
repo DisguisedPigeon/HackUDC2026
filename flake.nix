@@ -24,7 +24,8 @@
               watchexec
               python314
               python314Packages.pypdf
-              bun
+              nodejs_25
+              dbmate
               docker
               docker-compose
             ];
