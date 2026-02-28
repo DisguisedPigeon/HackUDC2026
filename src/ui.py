@@ -1,8 +1,8 @@
 import sys
 import itertools
 from typing import Any
-from logic import push_metadata
-
+from logic import push_metadata, send_query
+import datetime
 
 DEFAULTS = {
     "dir": ".",
@@ -12,7 +12,7 @@ DEFAULTS = {
     "startDate": None,
     "endDate": None,
     "usersMentioned": [],
-    "reunionResult": None,
+    "reunionResult": None,   
     "input": "data.csv",
     "help": False,
 }
@@ -68,7 +68,7 @@ def cli():
             #
             # Presumably something like query(args) should do.
             # could return something like ("ok", response) | ("error", description)
-            pass
+            send_query(args)
 
 
 
@@ -119,35 +119,13 @@ def parse_args(arg1: str, arg2: str):
             return {}
 
 
-def extractDuration(string, sign):
-    match string[-1]:
-        case "h" | "H":
-            return datetime.timedelta(hours = sign * int(string[1:-1]))
-        case "m":
-            return datetime.timedelta(minutes = sign * int(string[1:-1]))
-        case "s" | "S":
-            return datetime.timedelta(seconds = sign * int(string[1:-1]))
-        case "Y" | "y":
-            return datetime.timedelta(days = sign * 365 * int(string[1:-1]))
-        case "M":
-            return datetime.timedelta(days = sign * 30 * int(string[1:-1]))
-        case "D" | "d":
-            return datetime.timedelta(days = sign * int(string[1:-1]))
-
-
 def parseDate(string):
     """
     Parse a date.
     Allowed formats are:
         - ISO8601 (YYYY-MM-DDTHH:MM:SS)
-        - Time deltas (+1D|+5Y|-5h|+3s)
         - Spanish dates (DD/MM/YYYY)
     """
-
-    if string[0] == "+":
-        return extractDuration(string, 1)
-    if string[0] == "-":
-        return extractDuration(string, -1)
 
     # Spanish format 🇪🇸🐂🇪🇸🐂🇪🇸
     if string[2] == "/":
@@ -180,16 +158,17 @@ def update(d1, d2):
     return d1
 
 
-def iter2(l: list[str], f: Callable[[str, str], Any], merge_func: Callable[[Any, Any], Any]) -> Any:
+def iter2(l: list[str], f, merge_func) -> Any:
     ret = {}
     prev = None
     for curr in l:
         if curr == None:
-            prev = e
+            prev = curr
             continue
 
         ret = merge_func(ret, f(prev, curr))
         prev = curr
 
     return ret
+
 
