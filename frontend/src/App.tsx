@@ -10,7 +10,7 @@ function App() {
   return (
     <div className="container">
       <header>
-        <h1>📄 HackUDC Document Management</h1>
+        <h1> ⚙️🦆MAGIC NODE🧙‍♂️</h1>
         <p>Extract, Store, and Query document metadata</p>
       </header>
 
