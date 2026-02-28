@@ -23,10 +23,8 @@
             buildInputs = with pkgs; [
               watchexec
               python314
-              python314Packages.fastapi
-              python314Packages.pypdf2
-              python314Packages.textual
-              python314Packages.textual-dev
+              python314Packages.pypdf
+              bun
               docker
               docker-compose
             ];

@@ -3,9 +3,9 @@
 ## Instalation
 
 ## TODOs
-- [ ] Recorrer directorio
-    - [ ] Extraer metadatos
-    - [ ] Leer contenidos - !! fiarnos de extension, a posteriori, mirar cabezera de archivo
+- [x] Recorrer directorio
+    - [x] Extraer metadatos
+    - [x] Leer contenidos
 
 > [!NOTE]
 > Quizas generar formato intermedio para despois alimentar a denodo
