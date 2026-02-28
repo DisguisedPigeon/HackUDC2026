@@ -1,10 +1,9 @@
 import PyPDF2 as pdf
 import json
 import glob
-import os
 import logic
 import datetime 
-from pathlib import PurePosixPath
+from pathlib import PurePosixPath, Path
 
 def data_from_pdf(pdf_data: str):
     reader = pdf.PdfReader(pdf_data)
@@ -34,8 +33,9 @@ def data_from_txt(txt_data: str):
             contents.append[line]
         logic.FileData(name= t[0], contents = contents, creation_time = datetime.fromtimestamp(txt_data))
 
-path = os.getcwd()[:-4]
-for doc in glob.glob(f"{path}\dataset\*.*"):
+DATASET_DIR = Path(__file__).parent.parent / "dataset"
+
+for doc in glob.glob(f"{DATASET_DIR}/*"):
     if PurePosixPath(*doc).suffix == ".pdf":
         data_from_pdf
     elif PurePosixPath(*doc).suffix == ".csv":
