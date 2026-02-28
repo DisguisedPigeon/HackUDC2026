@@ -1,6 +1,7 @@
 import sys
 import itertools
 from typing import Any
+from logic import extract_metadata
 
 
 DEFAULTS = {
@@ -13,14 +14,15 @@ DEFAULTS = {
     "usersMentioned": [],
     "reunionResult": None,
     "input": "data.csv",
+    "help": False,
 }
 
 
-def cli(data):
-    args = iter2(sys.args, parse_args, lambda d1, d2: merge(d1, d2))
+def cli():
+    args = iter2(sys.argv, parse_args, update)
 
-    defaults.update(args)
-    args = defaults
+    DEFAULTS.update(args)
+    args = DEFAULTS
 
     if args["help"] == True:
         print("""
@@ -47,13 +49,14 @@ def cli(data):
               """)
         return
 
-    match sys.args[1]:
+    match sys.argv[1]:
         case "extract" | "e":
             # Extract the metadata from the args["dir"] directory
             #
             # Presumably something like extract(args) should do.
             # Maybe returns the data / writes it to a file
-            pass
+            print(extract_metadata(args))
+
         case "store" | "s":
             # Send the metadata to the denodo database
             #
@@ -65,9 +68,11 @@ def cli(data):
             #
             # Presumably something like query(args) should do.
             # could return something like ("ok", response) | ("error", description)
+            pass
 
 
-def parse_args(arg1: str, arg2: str) -> Any:
+
+def parse_args(arg1: str, arg2: str):
     match (arg1, arg2):
         case ("-d", v):
             return { "dir": v }
@@ -87,7 +92,9 @@ def parse_args(arg1: str, arg2: str) -> Any:
             return { "reunionResult": v }
         case ("-i", v):
             return { "input": v }
-        case v:
+        case (None, _):
+            return {}
+        case (v, _):
             if v.startswith("--help"):
                 return {"help": True}
             if v.startswith("--dir="):
@@ -107,7 +114,7 @@ def parse_args(arg1: str, arg2: str) -> Any:
             if v.startswith("--reunionResult="):
                 return {"reunionResult": parseDate(v[16:])}
             if v.startswith("--in="):
-                return {"input": v[5:])}
+                return {"input": v[5:]}
 
             return {}
 
@@ -165,19 +172,19 @@ def update(d1, d2):
     Updates d1 with all values of d2.
     If a key is present in both, it gets merged as a list
     """
-    for k, v in d2:
+    for k, v in d2.items():
         try:
-            d1[k] = list(chain.from_iterable([d1[k], v]))
-        except IndexError:
+            d1[k] = list(itertools.chain.from_iterable([d1[k], v]))
+        except KeyError:
             d1[k] = v
     return d1
 
 
 def iter2(l: list[str], f: Callable[[str, str], Any], merge_func: Callable[[Any, Any], Any]) -> Any:
-    ret = []
-    curr = None
+    ret = {}
+    prev = None
     for curr in l:
-        if curr = None:
+        if curr == None:
             prev = e
             continue
 
