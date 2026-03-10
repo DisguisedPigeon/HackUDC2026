@@ -32,7 +32,7 @@ function QueryView() {
         if (reunionResult) params.append('reunionResult', reunionResult)
       }
 
-      const response = await fetch(`http://localhost:5004/query?${params.toString()}`, {
+      const response = await fetch(`http://localhost:8000/query?${params.toString()}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

@@ -68,7 +68,7 @@ def extract_metadata_from_files():
                             "extra": row.get("extra", "{}")
                         }
                         files_data.append(file_info)
-            except Exception as e:
+            except Exception as _:
                 # Fallback to direct file reading for this folder
                 for doc in glob.glob(f"{folder}/*"):
                     filename = os.path.basename(doc)
@@ -99,7 +99,7 @@ def extract_metadata_from_files():
 
                     files_data.append(file_info)
 
-    except Exception as e:
+    except Exception as _:
         # Final fallback - just try to read from both folders directly
         for folder in all_folders:
             if not os.path.exists(folder):

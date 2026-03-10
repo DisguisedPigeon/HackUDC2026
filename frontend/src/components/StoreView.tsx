@@ -35,7 +35,7 @@ function StoreView({ extractedData }: StoreViewProps) {
     setSuccess('')
 
     try {
-      const response = await fetch('http://localhost:5004/store', {
+      const response = await fetch('http://localhost:8000/store', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

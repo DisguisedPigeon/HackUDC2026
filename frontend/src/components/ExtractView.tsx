@@ -52,7 +52,7 @@ function ExtractView({ onDataExtracted }: ExtractViewProps) {
         formData.append('files', selectedFiles[i])
       }
 
-      const response = await fetch('http://localhost:5004/files', {
+      const response = await fetch('http://localhost:8000/files', {
         method: 'POST',
         body: formData,
       })
@@ -82,7 +82,7 @@ function ExtractView({ onDataExtracted }: ExtractViewProps) {
 
     try {
       // Call the backend /extract endpoint which uses the Python logic
-      const response = await fetch('http://localhost:5004/extract', {
+      const response = await fetch('http://localhost:8000/extract', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -118,7 +118,7 @@ function ExtractView({ onDataExtracted }: ExtractViewProps) {
 
     try {
       // First, extract metadata
-      const extractResponse = await fetch('http://localhost:5004/extract', {
+      const extractResponse = await fetch('http://localhost:8000/extract', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -143,7 +143,7 @@ function ExtractView({ onDataExtracted }: ExtractViewProps) {
       }
 
       // Then, store to database
-      const storeResponse = await fetch('http://localhost:5004/store', {
+      const storeResponse = await fetch('http://localhost:8000/store', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
