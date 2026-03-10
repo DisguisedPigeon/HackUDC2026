@@ -12,10 +12,35 @@ DEFAULTS = {
     "startDate": None,
     "endDate": None,
     "usersMentioned": [],
-    "reunionResult": None,   
+    "reunionResult": None,
     "input": "data.csv",
     "help": False,
 }
+def print_help():
+    print("""
+Operation:
+    push, p               Pulls the metadata from the specified
+                          [--dir]ectory and updates the database.
+                          Stores the metadata from the specified
+                          [--in]put file onto the
+                          [--host][--port] machine. This is your
+                          denodo socket is located.
+
+    query, q              Runs a query with the specified
+                          filters. to the [--host][--port]
+                          machine.
+
+Operation flags:
+    -d,  --dir            Sets the directory.
+    -p,  --port           Sets the port.
+    -h,  --host           Sets the host machine IP.
+    -o,  --out            Sets the output file.
+
+Filters:
+    -sd, --startDate      Sets the start date.
+    -ed, --endDate        Sets the end date.
+    -m,  --usersMentioned Sets the participating users.
+    -r,  --reunionResult  Sets the reunion result.""")
 
 
 def cli():
@@ -24,30 +49,8 @@ def cli():
     DEFAULTS.update(args)
     args = DEFAULTS
 
-    if args["help"] == True:
-        print("""
-              Operation:
-                  push, p               Pulls the metadata from the specified
-                                        [--dir]ectory and updates the database.
-                                        Stores the metadata from the specified
-                                        [--in]put file onto the
-                                        [--host][--port] machine. This is your
-                                        denodo socket is located.
-                  query, q              Runs a query with the specified
-                                        filters. to the [--host][--port]
-                                        machine.
-              Operation flags:
-                  -d,  --dir            Sets the directory.
-                  -p,  --port           Sets the port.
-                  -h,  --host           Sets the host machine IP.
-                  -o,  --out            Sets the output file.
-              Filters:
-                  -sd, --startDate      Sets the start date.
-                  -ed, --endDate        Sets the end date.
-                  -m,  --usersMentioned Sets the participating users.
-                  -r,  --reunionResult  Sets the reunion result.
-              """)
-        return
+    if args["help"] == True or len(sys.argv) == 1:
+        return print_help()
 
     match sys.argv[1]:
         case "push" | "p":
@@ -68,11 +71,14 @@ def cli():
             #
             # Presumably something like query(args) should do.
             # could return something like ("ok", response) | ("error", description)
-            send_query(args)
+            send_query(args, True)
 
 
 
 def parse_args(arg1: str, arg2: str):
+    if arg1 == "--help":
+        return {"help": True}
+
     match (arg1, arg2):
         case ("-d", v):
             return { "dir": v }
@@ -92,8 +98,6 @@ def parse_args(arg1: str, arg2: str):
             return { "reunionResult": v }
         case ("-i", v):
             return { "input": v }
-        case (None, _):
-            return {}
         case (v, _):
             if v.startswith("--help"):
                 return {"help": True}
@@ -116,7 +120,7 @@ def parse_args(arg1: str, arg2: str):
             if v.startswith("--in="):
                 return {"input": v[5:]}
 
-            return {}
+    return {}
 
 
 def parseDate(string):
@@ -159,10 +163,14 @@ def update(d1, d2):
 
 
 def iter2(l: list[str], f, merge_func) -> Any:
+    """
+    Iterates over each pair of elements in l with function f.
+    The return values of f will be merged with merge_func.
+    """
     ret = {}
     prev = None
     for curr in l:
-        if curr == None:
+        if prev == None:
             prev = curr
             continue
 
@@ -172,3 +180,5 @@ def iter2(l: list[str], f, merge_func) -> Any:
     return ret
 
 
+if __name__ == "__main__":
+    cli()

@@ -1,4 +1,8 @@
 .direnv/
+.venv-1/
+.envrc/
 __pycache__/
 node_modules/
+uploads/
+dataset/
 env/

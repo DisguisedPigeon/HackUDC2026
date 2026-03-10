@@ -21,15 +21,25 @@
         {
           devShells.default = pkgs.mkShell {
             buildInputs = with pkgs; [
-              watchexec
-              python314
-              python314Packages.pypdf
-              python314Packages.requests
-              python314Packages.psycopg2
               nodejs_25
-              dbmate
+
               docker
               docker-compose
+
+              pyright
+
+              (python314.withPackages(pp: [
+              pp.pypdf
+              pp.requests
+              pp.psycopg2
+              pp.cffi
+              pp.packaging
+              pp.pillow
+              pp.pycparser
+              pp.python-multipart
+              pp.fastapi
+              pp.uvicorn
+              ]))
             ];
           };
         };

@@ -1,4 +1,3 @@
-
 import requests
 from requests.auth import HTTPBasicAuth
 from metadata import read_files
@@ -69,6 +68,8 @@ def push_metadata(args):
     except psycopg2.Error as e:
         print(f"A psycopg2 error occurred: {e}")
 
+    return files
+
 
 def _build_question(args: dict) -> str:
     parts = []
@@ -92,9 +93,10 @@ def _build_question(args: dict) -> str:
     else:
         return "Dime qué tablas hay disponibles y para qué sirve cada una"
 
-def send_query(args: dict):
+def send_query(args: dict, is_cli: bool):
     question = _build_question(args)
-    print(f"Enviando pregunta: {question}...")
+    if is_cli:
+        print(f"Enviando pregunta: {question}...")
 
     try:
         getMetadata = requests.get(
@@ -113,8 +115,9 @@ def send_query(args: dict):
         r_meta.raise_for_status()
         meta = r_meta.json()
 
-        print("\nMETADATA ANSWER:")
-        print(meta.get("answer", ""))
+        if is_cli:
+            print("\nMETADATA ANSWER:")
+            print(meta.get("answer", ""))
 
         r_data = requests.post(
             f"{AI_SDK_URL}/answerDataQuestion/",
@@ -130,25 +133,29 @@ def send_query(args: dict):
 
         # Mostrar el error completo del servidor antes de raise_for_status
         if not r_data.ok:
-            print(f"\nERROR {r_data.status_code} en answerDataQuestion:")
+            if is_cli:
+                print(f"\nERROR {r_data.status_code} en answerDataQuestion:")
             try:
                 err_body = r_data.json()
-                print(f"  detail:  {err_body.get('detail', '')}")
-                print(f"  message: {err_body.get('message', '')}")
-                print(f"  error:   {err_body.get('error', '')}")
-                print(f"  raw:     {err_body}")
+                if is_cli:
+                    print(f"  detail:  {err_body.get('detail', '')}")
+                    print(f"  message: {err_body.get('message', '')}")
+                    print(f"  error:   {err_body.get('error', '')}")
+                    print(f"  raw:     {err_body}")
             except Exception:
-                print(f"  raw text: {r_data.text[:500]}")
+                if is_cli:
+                    print(f"  raw text: {r_data.text[:500]}")
             return None
 
         data = r_data.json()
 
-        print("\nDATA ANSWER:")
-        print("-" * 50)
-        print(data.get("answer", ""))
-        if data.get("vql"):
-            print(f"\nVQL: {data['vql']}")
-        print("-" * 50)
+        if is_cli:
+            print("\nDATA ANSWER:")
+            print("-" * 50)
+            print(data.get("answer", ""))
+            if data.get("vql"):
+                print(f"\nVQL: {data['vql']}")
+            print("-" * 50)
 
         return {
             "metadata_answer": meta.get("answer"),
@@ -157,9 +164,11 @@ def send_query(args: dict):
         }
 
     except requests.exceptions.HTTPError as err:
-        if err.response.status_code == 401:
-            print("\nERROR 401: No autorizado.")
-        else:
-            print(f"\nERROR HTTP {err.response.status_code}: {err.response.text[:500]}")
+        if is_cli:
+            if err.response.status_code == 401:
+                print("\nERROR 401: No autorizado.")
+            else:
+                print(f"\nERROR HTTP {err.response.status_code}: {err.response.text[:500]}")
     except Exception as e:
-        print(f"\nERROR INESPERADO: {e}")
+        if is_cli:
+            print(f"\nERROR INESPERADO: {e}")
